@@ -1,0 +1,180 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-11-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load(tidyverse,dotenv,openai,dplyr,ggplot2)
+```
+
+```{r}
+# Load the .env file and get api key
+dotenv::load_dot_env(file = "C:/Users/szh/Desktop/DM/Hard_to_get/.env")
+OPENAI_API_KEY = Sys.getenv("openai_api_key")
+```
+
+## Simularting a pay-off structure
+
+```{r}
+set.seed(2001)
+```
+
+```{r}
+ntrials <- 20 # Total number of trials (only one run of 10 trials)
+nstruct <- 20 # Size of the subdivision for pseudorandomization
+freq <- 0.5 # Probability of frequent losses
+infreq <- 0.1 # Probability of infrequent losses
+bad_r <- 100 # "Bad" winnings
+bad_freq_l <- -250 # "Bad" frequent loss
+bad_infreq_l <- -1250 # "Bad" infrequent loss
+good_r <- 50 # "Good" winnings
+good_freq_l <- -50 # "Good" frequent loss
+good_infreq_l <- -250 # "Good" infrequent loss
+
+# Bad frequent
+A_R <- rep(bad_r, nstruct) # Wins for bad frequent deck
+A_L <- c(rep(bad_freq_l, nstruct * freq), rep(0, nstruct * (1 - freq))) # Losses for bad frequent deck
+
+# Bad infrequent
+B_R <- rep(bad_r, nstruct)
+B_L <- c(rep(bad_infreq_l, nstruct * infreq), rep(0, nstruct * (1 - infreq))) # Losses for bad infrequent deck
+
+# Good frequent
+C_R <- rep(good_r, nstruct)
+C_L <- c(rep(good_freq_l, nstruct * freq), rep(0, nstruct * (1 - freq)))
+
+# Good infrequent
+D_R <- rep(good_r, nstruct)
+D_L <- c(rep(good_infreq_l, nstruct * infreq), rep(0, nstruct * (1 - infreq)))
+
+# Shuffle losses for pseudorandomization
+loss1 <- sample(A_L)
+loss2 <- sample(B_L)
+loss3 <- sample(C_L)
+loss4 <- sample(D_L)
+
+# Calculate payoffs
+A <- A_R + loss1
+B <- B_R + loss2
+C <- C_R + loss3
+D <- D_R + loss4
+
+# Combine into a payoff structure
+payoff_structure <- cbind(A, B, C, D)
+
+# Summarize payoffs
+payoff_summary <- colSums(payoff_structure)
+
+# Output results
+print("Payoff structure for each trial:")
+print(payoff_structure)
+print("Total payoff for each deck:")
+print(payoff_summary)
+
+```
+
+## Simulating the game with gpt-4o-mini
+
+```{r}
+# Initialize History DataFrame
+results <- data.frame(
+  Trial = integer(),
+  Deck = character(),
+  Win = numeric(),
+  Loss = numeric(),
+  Net = numeric(),
+  stringsAsFactors = FALSE
+)
+```
+
+```{r}
+chat_history <- list(
+  list(
+    "role" = "system",
+    "content" = "You are playing a game of cards, and your goal is to maximize your winnings. \
+    You have four decks to choose from: A, B, C, and D. You can switch decks at any time in the game. \
+    Respond by only typing the letter of the deck you pick. Let's begin!"
+  )
+)
+```
+
+```{r}
+# Feedback function
+give_feedback <- function(trial, deck, last_net) {
+  deck_num <- match(toupper(deck), c("A", "B", "C", "D"))
+  outcome <- payoff_structure[trial, deck_num]
+  
+  win <- max(outcome, 0)
+  loss <- min(outcome, 0)
+  net <- last_net + win + loss
+  
+  list(
+    role = "user",
+    content = deck,
+    win = win,
+    loss = loss,
+    net = net
+  )
+}
+  
+```
+
+```{r}
+# Simulate GPT's response for a trial
+simulate_trial <- function(trial, last_net) {
+  result <- create_chat_completion(
+    model = "gpt-4o-mini",
+    temperature = ,
+    messages = chat_history
+  )
+  
+  chosen_deck <- result$choices$message.content[1]
+  
+  # Add AI response to chat history
+  chat_history[[length(chat_history) + 1]] <- list(role = "AI", content = chosen_deck)
+  
+  # Generate feedback and update chat history
+  feedback <- give_feedback(trial, chosen_deck, last_net)
+  chat_history[[length(chat_history) + 1]] <- feedback
+  
+  # Record trial results
+  results <<- rbind(results, data.frame(
+    Trial = trial,
+    Deck = chosen_deck,
+    Win = feedback$win,
+    Loss = feedback$loss,
+    Net = feedback$net
+  ))
+}
+
+```
+
+```{r}
+# Run the game for all trials
+last_net <- 0
+for (trial in 1:ntrials) {
+  simulate_trial(trial, last_net)
+  last_net <- tail(results$Net, 1)
+}
+
+# Output game results
+print("Game results:")
+print(results)
+```
+
+```{r}
+# Visualize the deck choice and net balance
+results %>%
+  ggplot(aes(x = Trial, y = Net, color = Deck)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Game Results", x = "Trial", y = "Net Balance", color = "Deck") +
+  theme_minimal()
+```
+
+
