@@ -11,7 +11,7 @@ MPD <- function(x) {
 
 #------ create task environment -------------------
 # NB! mod(ntrials, nstruct) (aka. ntrials %% nstruct) must be 0
-ntrials <- 100 # total number of trials in our payoff structure
+ntrials <- 150 # total number of trials in our payoff structure
 nstruct <- 10 # size of our subdivisions for pseudorandomization
 freq <- 0.5 # probability of our frequent losses (we have losses half of the time)
 infreq <- 0.1 # probability of our infrequent losses (we have losses 1/10th of the time)
@@ -68,38 +68,7 @@ payoff <- cbind(A,B,C,D)/100 # combining all four decks as columns with each 100
 colSums(payoff) # the two bad decks should sum to -25 (i.e. -2500), and the two good ones to 25 (i.e. 2500)
 #----------------------------------------------------
 
-
-#-------test ORL delta function and jags script ---------
-
-#---set params
-
-a_rew <- .3
-a_pun <- .3
-K <- 2
-theta <- 1
-omega_f <- .7
-omega_p <- .7
-
-# ntrials <- 100
-
 source("ORL.R")
-ORL_sims <- ORL(payoff,ntrials,a_rew,a_pun,K,theta,omega_f,omega_p)
-
-par(mfrow=c(2,2))
-plot(ORL_sims$Ev[,1])
-plot(ORL_sims$Ev[,2])
-plot(ORL_sims$Ev[,3])
-plot(ORL_sims$Ev[,4])
-
-x <- ORL_sims$x
-X <- ORL_sims$X
-
-# set up jags and run jags model
-data <- list("x","X","ntrials") 
-params<-c("a_rew","a_pun","K","omega_f","omega_p")
-samples <- jags.parallel(data, inits=NULL, params,
-                model.file ="ORL_no_theta.txt", n.chains=3, 
-                n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=3)
 
 
 ###--------------Run full parameter recovery -------------
@@ -175,10 +144,10 @@ plot(true_omega_f,infer_omega_f)
 plot(true_omega_p,infer_omega_p)
 
 # Define the folder where you want to save the plot
-output_folder <- "/work/TildeIdunSloth#2173/ORL"
+output_folder <- "/work/TildeIdunSloth#2173/DC_exam/Hard_to_get/Plots"
 
 # Set the file path and name
-output_file <- file.path(output_folder, "parameter_recovery_plots.png")
+output_file <- file.path(output_folder, "parameter_recovery_plots_Wetzel_structure.png")
 
 # Open the graphics device
 png(filename = output_file, width = 800, height = 1000)  # Adjust width and height as needed
@@ -218,18 +187,7 @@ dev.off()
 # Output confirmation message
 cat("Plot saved to:", output_file, "\n")
 
-
-# Save the workspace
-save.image(file = "ORL_recovery_no_theta_payoff.RData")
-
-# plotting code courtesy of Lasse HH
-source('/work/Module3/recov_plot.R')
-pl1 <- recov_plot(true_a_rew, infer_a_rew, c("true a_rew", "infer a_rew"), 'smoothed linear fit')
-pl2 <- recov_plot(true_a_pun, infer_a_pun, c("true a_pun", "infer a_pun"), 'smoothed linear fit')
-pl3 <- recov_plot(true_K, infer_K, c("true K", "infer K"), 'smoothed linear fit')
-pl4 <- recov_plot(true_omega_f, infer_omega_f, c("true omega_f", "infer omega_f"), 'smoothed linear fit')
-pl5 <- recov_plot(true_omega_p, infer_omega_p, c("true omega_p", "infer omega_p"), 'smoothed linear fit')
-ggarrange(pl1, pl2, pl3, pl4, pl5)
+save.image(file = "my_workspace.RData")
 
 # for investigating multi-colinearity
 # par(mfrow=c(2,2))
