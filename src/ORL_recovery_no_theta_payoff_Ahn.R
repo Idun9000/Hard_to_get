@@ -11,7 +11,7 @@ MPD <- function(x) {
 
 #------ create task environment -------------------
 # NB! mod(ntrials, nstruct) (aka. ntrials %% nstruct) must be 0
-ntrials <- 150 # total number of trials in our payoff structure
+ntrials <- 100 # total number of trials in our payoff structure
 nstruct <- 10 # size of our subdivisions for pseudorandomization
 freq <- 0.5 # probability of our frequent losses (we have losses half of the time)
 infreq <- 0.1 # probability of our infrequent losses (we have losses 1/10th of the time)
@@ -22,21 +22,51 @@ good_r <- 50 # "good" winnings
 good_freq_l <- -50 # "good" frequent loss
 good_infreq_l <- -250 # "good" infrequent loss
 
-# Bad frequent
+# Deck A: Loss increases by 30 every 10 trials (up to 60 trials, then fixed)
 A_R <- rep(bad_r, nstruct) # we win on every trials
-A_L <- c(rep(bad_freq_l, nstruct*freq),rep(0,nstruct*(1-freq))) # we have losses half of the time
+A_L1 <- c(rep(bad_freq_l, nstruct*freq), rep(0, nstruct*(1-freq)))                    # Trial 1-10
+A_L2 <- c(rep(bad_freq_l - 30, nstruct*freq), rep(0, nstruct*(1-freq)))              # Trial 11-20
+A_L3 <- c(rep(bad_freq_l - 60, nstruct*freq), rep(0, nstruct*(1-freq)))              # Trial 21-30
+A_L4 <- c(rep(bad_freq_l - 90, nstruct*freq), rep(0, nstruct*(1-freq)))              # Trial 31-40
+A_L5 <- c(rep(bad_freq_l - 120, nstruct*freq), rep(0, nstruct*(1-freq)))             # Trial 41-50
+A_L6 <- c(rep(bad_freq_l - 150, nstruct*freq), rep(0, nstruct*(1-freq)))             # Trial 51-60
+A_L_fixed <- c(rep(bad_freq_l - 150, nstruct*freq), rep(0, nstruct*(1-freq)))        # Fixed after 60 trials
 
-# Bad infrequent
+# Deck B: Loss increases by 150 every 10 trials (up to 60 trials, then fixed)
 B_R <- rep(bad_r, nstruct)
-B_L <- c(rep(bad_infreq_l, nstruct*infreq),rep(0,nstruct*(1-infreq))) # we have losses 1/10th of the time
+B_L1 <- c(rep(bad_infreq_l, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+B_L2 <- c(rep(bad_infreq_l - 150, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+B_L3 <- c(rep(bad_infreq_l - 300, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+B_L4 <- c(rep(bad_infreq_l - 450, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+B_L5 <- c(rep(bad_infreq_l - 600, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+B_L6 <- c(rep(bad_infreq_l - 750, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+B_L_fixed <- c(rep(bad_infreq_l - 750, nstruct*infreq), rep(0, nstruct*(1-infreq)))
 
-# Good frequent
+# Deck C: Loss decreases by 5 every 10 trials
 C_R <- rep(good_r, nstruct)
-C_L <- c(rep(good_freq_l, nstruct*freq),rep(0,nstruct*(1-freq)))
+C_L1 <- c(rep(good_freq_l, nstruct*freq), rep(0, nstruct*(1-freq)))
+C_L2 <- c(rep(good_freq_l + 5, nstruct*freq), rep(0, nstruct*(1-freq)))
+C_L3 <- c(rep(good_freq_l + 10, nstruct*freq), rep(0, nstruct*(1-freq)))
+C_L4 <- c(rep(good_freq_l + 15, nstruct*freq), rep(0, nstruct*(1-freq)))
+C_L5 <- c(rep(good_freq_l + 20, nstruct*freq), rep(0, nstruct*(1-freq)))
+C_L6 <- c(rep(good_freq_l + 25, nstruct*freq), rep(0, nstruct*(1-freq)))
+C_L_fixed <- c(rep(good_freq_l + 25, nstruct*freq), rep(0, nstruct*(1-freq)))
 
-# Good infrequent
+# Deck D: Loss decreases by 25 every 10 trials
 D_R <- rep(good_r, nstruct)
-D_L <- c(rep(good_infreq_l, nstruct*infreq),rep(0,nstruct*(1-infreq)))
+D_L1 <- c(rep(good_infreq_l, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+D_L2 <- c(rep(good_infreq_l + 25, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+D_L3 <- c(rep(good_infreq_l + 50, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+D_L4 <- c(rep(good_infreq_l + 75, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+D_L5 <- c(rep(good_infreq_l + 100, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+D_L6 <- c(rep(good_infreq_l + 125, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+D_L_fixed <- c(rep(good_infreq_l + 125, nstruct*infreq), rep(0, nstruct*(1-infreq)))
+
+# Combine losses for all trials
+A_L <- c(A_L1, A_L2, A_L3, A_L4, A_L5, A_L6, rep(A_L_fixed, (ntrials/10 - 6)))
+B_L <- c(B_L1, B_L2, B_L3, B_L4, B_L5, B_L6, rep(B_L_fixed, (ntrials/10 - 6)))
+C_L <- c(C_L1, C_L2, C_L3, C_L4, C_L5, C_L6, rep(C_L_fixed, (ntrials/10 - 6)))
+D_L <- c(D_L1, D_L2, D_L3, D_L4, D_L5, D_L6, rep(D_L_fixed, (ntrials/10 - 6)))
 
 # create the pseudorandomized full payoff structure
 A <- array(NA,ntrials) # setting up and empty array to be filled
@@ -44,18 +74,27 @@ B <- array(NA,ntrials)
 C <- array(NA,ntrials)
 D <- array(NA,ntrials)
 for (i in 1:(ntrials/nstruct)) {
-  A[(1+(i-1)*nstruct):(i*nstruct)] <- (A_R + sample(A_L)) # randomly shuffling the loss-array for every ten trials (and adding those losses to the winnings)
-  B[(1+(i-1)*nstruct):(i*nstruct)] <- (B_R + sample(B_L))
-  C[(1+(i-1)*nstruct):(i*nstruct)] <- (C_R + sample(C_L))
-  D[(1+(i-1)*nstruct):(i*nstruct)] <- (D_R + sample(D_L))
+  A[(1+(i-1)*nstruct):(i*nstruct)] <- A_R + sample(A_L[(1+(i-1)*nstruct):(i*nstruct)])
+  B[(1+(i-1)*nstruct):(i*nstruct)] <- B_R + sample(B_L[(1+(i-1)*nstruct):(i*nstruct)])
+  C[(1+(i-1)*nstruct):(i*nstruct)] <- C_R + sample(C_L[(1+(i-1)*nstruct):(i*nstruct)])
+  D[(1+(i-1)*nstruct):(i*nstruct)] <- D_R + sample(D_L[(1+(i-1)*nstruct):(i*nstruct)])
 }
+
 
 
 payoff <- cbind(A,B,C,D)/100 # combining all four decks as columns with each 100 trials - dividing our payoffs by 100 to make the numbers a bit easier to work with
 
 # let's look at the payoff
-colSums(payoff) # the two bad decks should sum to -25 (i.e. -2500), and the two good ones to 25 (i.e. 2500)
-#----------------------------------------------------
+colSums(payoff)
+
+payoff_winloss_df <- data.frame(
+  Trial = 1:ntrials,
+  Deck_A_WinLoss = A,
+  Deck_B_WinLoss = B,
+  Deck_C_WinLoss = C,
+  Deck_D_WinLoss = D
+)
+
 
 source("ORL.R")
 
@@ -98,8 +137,8 @@ for (i in 1:niterations) {
   data <- list("x","X","ntrials") 
   params<-c("a_rew","a_pun","K","omega_f","omega_p")
   samples <- jags.parallel(data, inits=NULL, params,
-                  model.file ="ORL_no_theta.txt", n.chains=3, 
-                  n.iter=3000, n.burnin=1000, n.thin=1, n.cluster=3)
+                           model.file ="ORL_no_theta.txt", n.chains=3, 
+                           n.iter=3000, n.burnin=1000, n.thin=1, n.cluster=3)
   
   
   true_a_rew[i] <- a_rew
@@ -133,10 +172,10 @@ plot(true_omega_f,infer_omega_f)
 plot(true_omega_p,infer_omega_p)
 
 # Define the folder where you want to save the plot
-output_folder <- "/work/TildeIdunSloth#2173/DC_exam/Hard_to_get/Plots"
+output_folder <- "/work/DC_exam/Hard_to_get/Plots"
 
 # Set the file path and name
-output_file <- file.path(output_folder, "parameter_recovery_plots_Wetzel_structure.png")
+output_file <- file.path(output_folder, "parameter_recovery_plots_Ahn_structure.png")
 
 # Open the graphics device
 png(filename = output_file, width = 800, height = 1000)  # Adjust width and height as needed
@@ -175,27 +214,3 @@ dev.off()
 
 # Output confirmation message
 cat("Plot saved to:", output_file, "\n")
-
-save.image(file = "my_workspace.RData")
-
-# for investigating multi-colinearity
-# par(mfrow=c(2,2))
-# plot(true_a_rew,true_a_pun)
-# plot(infer_a_rew,infer_a_pun)
-# plot(true_omega_f,true_omega_p)
-# plot(infer_omega_f,infer_omega_p)
-# 
-# par(mfrow=c(2,2))
-# plot(true_a_rew,true_omega_f)
-# plot(infer_a_rew,infer_omega_f)
-# plot(true_a_rew,true_omega_p)
-# plot(infer_a_rew,infer_omega_p)
-
-
-
-
-
-
-
-
-
