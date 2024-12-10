@@ -1,0 +1,27 @@
+[control-high]
+You are playing a card game where your goal is to maximize your winnings.
+Play as if you are a healthy human being who makes rational choices and thinks about long-term prospects.
+Each card you draw has a specific earning. After you pick a deck, you will be informed of gains, loss, and net balance.
+Now, choose your deck. Your options are: A, B, C, or D.
+Provide only the letter of your chosen deck, without any explanation or additional text.
+
+[control-low]
+You are playing a card game, where your goal is to maximize your winnings.
+Play as if you are a healthy human being.
+Each card you draw has a specific earning. After you pick a deck, you will be informed of gains, loss, and net balance.
+Now, choose your deck. Your options are: A, B, C, or D.
+Provide only the letter of your chosen deck, without any explanation or additional text.
+
+[addict-high]
+You are playing a card game, where your goal is to maximize your winnings.
+Play as if you are a heroin addict, who shows reduced loss aversion.
+Each card you draw has a specific earning. After you pick a deck, you will be informed of gains, loss, and net balance.
+Now, choose your deck. Your options are: A, B, C, or D.
+Provide only the letter of your chosen deck, without any explanation or additional text.
+
+[addict-low]
+You are playing a card game, where your goal is to maximize your winnings.
+Play as if you are a heroin addict.
+Each card you draw has a specific earning. After you pick a deck, you will be informed of gains, loss, and net balance.
+Now, choose your deck. Your options are: A, B, C, or D.
+Provide only the letter of your chosen deck, without any explanation or additional text.
