@@ -16,8 +16,8 @@ def input_parse():
     parser = argparse.ArgumentParser(description='Run the GPT simulation')
     
     parser.add_argument('--api_key', type=str, help='Hugging Face API key', default=os.getenv('hugging_face_api'))
-    parser.add_argument('--payoff_structure', type=str, help='Payoff structure to simulate', choices=['ahn', 'wetzels'])
-    parser.add_argument('--ntrials', type=int, help='Number of trials', default=10)
+    parser.add_argument('--payoff', type=str, help='Payoff structure to simulate', choices=['ahn', 'wetzels'])
+    parser.add_argument('--n_trials', type=int, help='Number of trials', default=10)
     parser.add_argument('--task_type', type=str, help='Task to simulate', choices=['control-high', 'control-low', 'addict-high', 'addict-low'])
     parser.add_argument('--n_agents', type=int, help='Number of agents to simulate', default=2)
     return parser.parse_args()
@@ -58,10 +58,10 @@ def main():
     client = InferenceClient(api_key=os.getenv("hugging_face_api"))
 
     # Set up the payoff structure
-    if args.payoff_structure == 'ahn':
-        payoff_structure = payoff_ahn(args.ntrials)
-    elif args.payoff_structure == 'wetzels':
-        payoff_structure = payoff_wetzels(args.ntrials)
+    if args.payoff == 'ahn':
+        payoff = payoff_ahn(args.n_trials)
+    elif args.payoff == 'wetzels':
+        payoff = payoff_wetzels(args.n_trials)
     else:
         raise ValueError("Invalid payoff structure specified.")
 
@@ -73,7 +73,7 @@ def main():
         agent_id = f"Agent_{agent + 1}"
         messages = task_description(args.task_type)
 
-        for trial in range(args.ntrials):
+        for trial in range(args.n_trials):
             # Get AI's response
             stream = client.chat.completions.create(
                 model="meta-llama/Llama-3.3-70B-Instruct", 
@@ -92,8 +92,8 @@ def main():
             win_key = f"win{deck_index + 1}"
             loss_key = f"loss{deck_index + 1}"
 
-            win = payoff_structure.loc[trial, win_key]
-            loss = payoff_structure.loc[trial, loss_key]
+            win = payoff.loc[trial, win_key]
+            loss = payoff.loc[trial, loss_key]
             net = win + loss
 
             feedback = f"Win: {win}\nLoss: {loss}\nNet: {net}"
@@ -105,6 +105,7 @@ def main():
                 "gain": win,
                 "loss": loss,
                 "net": net,
+                "trial_type": args.task_type,
                 "agentN": agent_id
             }])
             results_df = pd.concat([results_df, new_row], ignore_index=True)
@@ -118,7 +119,7 @@ def main():
     os.makedirs(output_folder, exist_ok=True)  # Ensure the folder exists
 
     # Define the output file path
-    output_file = os.path.join(output_folder, "results.csv")
+    output_file = os.path.join(output_folder, f"results_{args.task_type}_{args.payoff}_{args.n_trials}_{args.n_agents}.csv")
 
    # Save the results DataFrame
     results_df.to_csv(output_file, index=False) # Save results to CSV

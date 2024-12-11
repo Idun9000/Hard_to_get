@@ -1,6 +1,6 @@
-# GPT Simulation for Behavioral Modeling
+# LLM Simulation for Behavioral Modeling
 
-This project simulates behavioral responses using a GPT model to understand task performance under different payoff structures and task conditions. The simulation generates agent responses, evaluates them against predefined payoff structures, and logs the results.
+This code contains content for a project evaluating LLMs ability to behave like human beings, and hard-to-get populations. Code covers LLM data simulation for the Iowa Gambling Task and cognitive modeling of data from control and addicts.
 
 ## File Structure
 
@@ -66,14 +66,14 @@ project/
 
 Run the simulation with the following command:
 ```bash
-python main.py --task_type <TASK_TYPE> --payoff_structure <STRUCTURE> --ntrials <TRIALS> --n_agents <AGENTS>
+python main.py --task_type <TASK_TYPE> --payoff <PAYOFF STRUCTURE> --n_trials <TRIALS> --n_agents <AGENTS>
 ```
 
 ### Arguments
 
 - `--api_key`: Hugging Face API key (defaults to value in `.env` file).
-- `--payoff_structure`: The payoff structure to simulate. Choices are `ahn` or `wetzels`.
-- `--ntrials`: Number of trials per agent (default: 10).
+- `--payoff`: The payoff structure to simulate. Choices are `ahn` or `wetzels`.
+- `--n_trials`: Number of trials per agent (default: 10).
 - `--task_type`: The task type to simulate. Choices are:
   - `control-high`
   - `control-low`
@@ -84,44 +84,19 @@ python main.py --task_type <TASK_TYPE> --payoff_structure <STRUCTURE> --ntrials 
 ### Example Command
 
 ```bash
-python main.py --task_type control-high --payoff_structure ahn --ntrials 20 --n_agents 5
+python main.py --task_type control-high --payoff ahn --n_trials 20 --n_agents 5
 ```
 
 ### Output
 
-Results are saved in the `out/` folder as a CSV file (`results.csv`). Example output structure:
+Results are saved in the `out/` folder as a CSV file (`results_{args.task_type}_{args.payoff}_{args.n_trials}_{args.n_agents}.csv`). Example output structure:
 
-| trial | deck | gain | loss | net  | agentN    |
-|-------|------|------|------|------|-----------|
-| 1     | A    | 100  | -250 | -150 | Agent_1   |
-| 2     | B    | 50   | -50  | 0    | Agent_1   |
-| ...   | ...  | ...  | ...  | ...  | ...       |
+| trial | deck | gain | loss | net  | agentN    | agentN      | 
+|-------|------|------|------|------|-----------|-------------|
+| 1     | A    | 100  | -250 | -150 | Agent_1   | control-low |
+| 2     | B    | 50   | -50  | 0    | Agent_1   | control-low |
+| ...   | ...  | ...  | ...  | ...  | ...       | ...         |
+
 
 ## Modeling Pipeline Template for JAGS
 
-See the `JAGS_Model_Template.txt` file for setting up a modeling pipeline.
-
-```
-
----
-
-### **JAGS_Model_Template.txt**
-
-```txt
-# JAGS Modeling Pipeline Template
-
-# Description
-# Add your model description here...
-
-# Model Specification
-# Specify your model here...
-
-# Data Structure
-# Describe the data input structure...
-
-# Parameters to Monitor
-# Define the parameters to monitor...
-
-# Model Execution
-# Add execution instructions here...
-```
