@@ -1,0 +1,110 @@
+---
+title: "Changing n_participants"
+author: "Tilde Sloth"
+date: "2024-12-19"
+output: html_document
+---
+
+```{r}
+setwd("/Users/tildeidunsloth/Desktop/Decision Making/Decision_making_exam")
+pacman::p_load(tidyverse)
+```
+
+# Ahn data
+```{r}
+Ahn_data_healthy <-read.table("/Users/tildeidunsloth/Desktop/Decision Making/Decision_making_exam/rawData/IGTdata_healthy_control.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+Ahn_data_heroin <- read.table("/Users/tildeidunsloth/Desktop/Decision Making/Decision_making_exam/rawData/IGTdata_heroin.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+```
+
+# Cleaning heroin Ahn data
+```{r}
+# Filter out participant that doesn't have full number of trials
+
+# Filter out subject 332
+Ahn_data_heroin_filtered <- subset(Ahn_data_heroin, subjID != 332)
+
+# Write to a .txt file
+write.table(Ahn_data_heroin_filtered, "Ahn_data_heroin_filtered.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+# Write to a .csv file
+write.csv(Ahn_data_heroin_filtered, "Ahn_data_heroin_filtered.csv", row.names = FALSE)
+```
+
+# Cleaning healthy Ahn data
+```{r}
+# Inspect the participant IDs
+unique(Ahn_data_healthy$subjID)
+length(unique(Ahn_data_healthy$subjID))
+
+# Original list of subjects
+subjects <- c(103, 104, 114, 115, 116, 117, 118, 121, 122, 123, 124, 126, 127, 128, 129, 
+              131, 132, 153, 171, 181, 185, 206, 207, 208, 209, 212, 222, 226, 228, 229, 
+              241, 242, 243, 246, 251, 271, 272, 274, 279, 280, 284, 315, 325, 331, 333, 
+              336, 346, 347)
+
+# Ensure 118 is removed, then randomly select 5 more subjects
+set.seed(123)  # Set seed for reproducibility
+subjects_to_remove <- c(118, sample(subjects[subjects != 118], 5))
+
+# View subjects to remove
+print(subjects_to_remove)
+
+# Remaining subjects
+remaining_subjects <- setdiff(subjects, subjects_to_remove)
+print("Remaining subjects:")
+print(remaining_subjects)
+
+# Remove the selected subjects
+Ahn_data_healthy_filtered <- subset(Ahn_data_healthy, !(subjID %in% subjects_to_remove))
+length(unique(Ahn_data_healthy_filtered$subjID))
+
+# Write to a .txt file
+write.table(Ahn_data_healthy_filtered, "Ahn_data_healthy_filtered.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+# Write to a .csv file
+write.csv(Ahn_data_healthy_filtered, "Ahn_data_healthy_filtered.csv", row.names = FALSE)
+```
+
+# Cleaning healthy Wetzel data
+```{r}
+# Define the folder where files are stored
+folder_path <- "/Users/tildeidunsloth/Desktop/Decision Making/Decision_making_exam/EV_data/rewards_text"
+
+# List all txt files in the folder
+file_list <- list.files(path = folder_path, pattern = "rewards_.*\\.txt", full.names = TRUE)
+
+# Initialize an empty list to store dataframes
+data_list <- list()
+
+# Loop through each file, read it, and add a participant ID column
+for (file in file_list) {
+  
+  # Read the file into a dataframe
+  temp_data <- read.table(file, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+  
+  # Extract participant ID from the filename (e.g., rewards_01.txt -> 01)
+  participant_id <- gsub(".*_(\\d+)\\.txt", "\\1", basename(file))
+  
+  # Add a column for the participant ID
+  temp_data$subjID <- participant_id
+  
+  # Append the dataframe to the list
+  data_list[[length(data_list) + 1]] <- temp_data
+}
+
+# Combine all dataframes into one
+Wetzel_data_healthy <- do.call(rbind, data_list)
+
+# Add a new column "deck" based on conditions
+Wetzel_data_healthy$deck <- with(Wetzel_data_healthy, 
+                        ifelse(deckA == 1, 1, 
+                        ifelse(deckB == 1, 2, 
+                        ifelse(deckC == 1, 3, 
+                        ifelse(deckD == 1, 4, NA)))))
+
+# Save the combined data as a .txt file
+write.table(Wetzel_data_healthy, "Wetzel_data_healthy.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+
+# Save as a .csv file if needed
+write.csv(Wetzel_data_healthy, "Wetzel_data_healthy.csv", row.names = FALSE)
+```
+

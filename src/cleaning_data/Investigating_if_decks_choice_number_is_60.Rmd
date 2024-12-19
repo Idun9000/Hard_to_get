@@ -1,0 +1,66 @@
+---
+title: "Untitled"
+author: "Tilde Sloth"
+date: "2024-12-09"
+output: html_document
+---
+
+```{r}
+knitr::opts_knit$set(root.dir='/Users/tildeidunsloth/Desktop/Decision Making/Decision_making_exam/rawData')
+setwd("/Users/tildeidunsloth/Desktop/Decision Making/Decision_making_exam/rawData")
+getwd()
+```
+
+```{r}
+# Import the data into a dataframe
+igt_data <- read.table("IGTdata_heroin.txt", 
+                       header = TRUE,      # TRUE if the file has column names
+                       sep = "\t",         # Assuming the file is tab-separated
+                       stringsAsFactors = FALSE)  # Prevent strings from being factors
+
+igt_data_healthy <- read.table("IGTdata_healthy_control.txt", 
+                       header = TRUE,      # TRUE if the file has column names
+                       sep = "\t",         # Assuming the file is tab-separated
+                       stringsAsFactors = FALSE)  # Prevent strings from being factors
+
+```
+
+```{r}
+install.packages("dplyr")  # Run if dplyr is not installed
+library(dplyr)
+```
+
+```{r}
+# Summarize choices by subject ID and deck
+deck_summary <- igt_data %>%
+  group_by(subjID, deck) %>%  # Group by subject ID and deck
+  summarise(choices = n(), .groups = "drop")  # Count the number of choices
+
+# View the summarized table
+print(deck_summary)
+
+# Summarize choices by subject ID and deck
+deck_summary_healthy <- igt_data_healthy %>%
+  group_by(subjID, deck) %>%  # Group by subject ID and deck
+  summarise(choices = n(), .groups = "drop")  # Count the number of choices
+
+# View the summarized table
+print(deck_summary_healthy)
+```
+
+```{r}
+# Filter out rows where choices are over 60
+deck_summary_filtered <- deck_summary %>%
+  filter(choices >= 60)
+
+# View the filtered data
+print(deck_summary_filtered)
+
+# Filter out rows where choices are over 60
+deck_summary_filtered_healthy <- deck_summary_healthy %>%
+  filter(choices >= 60)
+
+# View the filtered data
+print(deck_summary_filtered_healthy)
+```
+
