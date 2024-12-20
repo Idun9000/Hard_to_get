@@ -4,7 +4,7 @@ pacman::p_load(R2jags, parallel, ggplot2, reshape2)
 
 set.seed(2000)
 
-setwd('/work/DC_exam/Hard_to_get/src/modeling')
+setwd('/work/DC_exam/Hard_to_get/src/modeling/Estimations')
 
 # Function to calculate the maximum of the posterior density
 MPD <- function(x) {
@@ -14,7 +14,7 @@ MPD <- function(x) {
 #---------- Load and prepare the data
 ctr_data <- read.table('/work/DC_exam/Hard_to_get/in/Data/raw_data/Ahn_data/Ahn_data_healthy_filtered.txt', header = TRUE)
 subIDs <- unique(ctr_data$subjID)
-nsubs <- length(subIDs) # Update the subject count
+nsubs <- length(subIDs)
 ntrials_max <- 100
 
 x_raw <- ctr_data$deck
@@ -69,39 +69,36 @@ for (s in 1:nsubs) {
   posterior_samples[[s]] <- samples$BUGSoutput$sims.list
 }
 
-#---------- Combine posteriors and prepare for plotting
-# Combine all subjects' samples into data frames
-combine_parameter_samples <- function(param_name) {
-  do.call(rbind, lapply(1:nsubs, function(s) {
-    data.frame(
+
+# Combine posterior samples into a single data frame
+combine_samples_to_df <- function(posterior_samples, subIDs, group_label) {
+  combined_data <- data.frame()
+  
+  for (s in 1:length(posterior_samples)) {
+    subject_data <- data.frame(
       subjID = subIDs[s],
-      value = posterior_samples[[s]][[param_name]]
+      group = group_label,
+      a_rew   = posterior_samples[[s]]$a_rew,
+      a_pun   = posterior_samples[[s]]$a_pun,
+      K       = posterior_samples[[s]]$K,
+      theta   = posterior_samples[[s]]$theta,
+      omega_f = posterior_samples[[s]]$omega_f,
+      omega_p = posterior_samples[[s]]$omega_p
     )
-  }))
-}
-
-# Create combined data for each parameter
-params_list <- c("a_rew", "a_pun", "K", "theta", "omega_f", "omega_p")
-posterior_data <- lapply(params_list, combine_parameter_samples)
-names(posterior_data) <- params_list
-
-#---------- Plot parameter distributions
-plot_parameter_distributions <- function(posterior_data) {
-  for (param_name in names(posterior_data)) {
-    # Create the plot
-    p <- ggplot(posterior_data[[param_name]], aes(x = value, group = subjID, fill = as.factor(subjID))) +
-      geom_density(alpha = 0.4) +
-      labs(title = paste("Posterior Distribution of", param_name),
-           x = param_name, y = "Density", fill = "Subject ID") +
-      theme_minimal() +
-      theme(legend.position = "none")
-    
-    # Print the plot to check interactively
-    print(p)
-    
-    # Save the plot to a file
-    ggsave(filename = paste0("posterior_", param_name, ".png"), plot = p, width = 8, height = 6)
+    combined_data <- rbind(combined_data, subject_data)
   }
+  
+  return(combined_data)
 }
 
-#plot_parameter_distributions(posterior_data)
+# Create a data frame for healthy controls
+healthy_data <- combine_samples_to_df(posterior_samples, subIDs, group_label = "healthy")
+
+head(healthy_data)
+
+# Save to CSV
+write.csv(healthy_data, "posterior_samples_healthy.csv", row.names = FALSE)
+
+
+# Save the workspace 
+save.image(file = "estimation_ahn_healthy.RData")
