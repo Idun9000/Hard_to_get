@@ -43,7 +43,7 @@ for (s in 1:nsubs) {
 X_all <- X_all / 100
 
 #---------- Run JAGS for all subjects
-params <- c("a_rew", "a_pun", "K", "theta", "omega_f", "omega_p", "p")
+params <- c("a_rew", "a_pun", "K", "theta", "omega_f", "omega_p")
 
 # Create a list to store posterior samples for each subject
 posterior_samples <- vector("list", length = nsubs)
@@ -99,6 +99,37 @@ head(healthy_data)
 # Save to CSV
 write.csv(healthy_data, "posterior_samples_healthy.csv", row.names = FALSE)
 
+# Look at the distribution of parameters
+plot(density(healthy_data$a_rew))
+plot(density(healthy_data$a_pun))
+plot(density(healthy_data$K))
+plot(density(healthy_data$omega_f))
+plot(density(healthy_data$omega_p))
+
+# Investigate convergence
+pacman::p_load(coda)
+samples_list <- mcmc.list(lapply(1:ncol(samples$BUGSoutput$sims.array), 
+                                 function(chain) as.mcmc(samples$BUGSoutput$sims.array[, chain, ])))
+
+# Convert samples_list to a matrix
+samples_matrix <- as.matrix(samples_list)
+
+# Convert the matrix to a data frame
+samples_df <- as.data.frame(samples_matrix)
+
+# Look at the distribution of parameters
+plot(density(samples_df$a_rew))
+plot(density(samples_df$a_pun))
+plot(density(samples_df$K))
+plot(density(samples_df$omega_f))
+plot(density(samples_df$omega_p))
+
+# trace plot
+traceplot(samples, ask=FALSE, mfrow = c(3, 2), varname=params)
+
+# Gelman-Rubin diagnostic
+gelman_results <- gelman.diag(samples_list[, c("a_rew", "a_pun", "K", "omega_f", "omega_p")], multivariate = FALSE)
+print(gelman_results)
 
 # Save the workspace 
 save.image(file = "estimation_ahn_healthy.RData")
