@@ -70,42 +70,6 @@ for (s in 1:nsubs) {
 }
 
 
-# Combine posterior samples into a single data frame
-combine_samples_to_df <- function(posterior_samples, subIDs, group_label) {
-  combined_data <- data.frame()
-  
-  for (s in 1:length(posterior_samples)) {
-    subject_data <- data.frame(
-      subjID = subIDs[s],
-      group = group_label,
-      a_rew   = posterior_samples[[s]]$a_rew,
-      a_pun   = posterior_samples[[s]]$a_pun,
-      K       = posterior_samples[[s]]$K,
-      theta   = posterior_samples[[s]]$theta,
-      omega_f = posterior_samples[[s]]$omega_f,
-      omega_p = posterior_samples[[s]]$omega_p
-    )
-    combined_data <- rbind(combined_data, subject_data)
-  }
-  
-  return(combined_data)
-}
-
-# Create a data frame for healthy controls
-healthy_data <- combine_samples_to_df(posterior_samples, subIDs, group_label = "healthy")
-
-head(healthy_data)
-
-# Save to CSV
-write.csv(healthy_data, "posterior_samples_healthy.csv", row.names = FALSE)
-
-# Look at the distribution of parameters
-plot(density(healthy_data$a_rew))
-plot(density(healthy_data$a_pun))
-plot(density(healthy_data$K))
-plot(density(healthy_data$omega_f))
-plot(density(healthy_data$omega_p))
-
 # Investigate convergence
 pacman::p_load(coda)
 samples_list <- mcmc.list(lapply(1:ncol(samples$BUGSoutput$sims.array), 
@@ -117,6 +81,8 @@ samples_matrix <- as.matrix(samples_list)
 # Convert the matrix to a data frame
 samples_df <- as.data.frame(samples_matrix)
 
+write.csv(samples_df, "posterior_samples_healthy_Ahn.csv", row.names = FALSE)
+
 # Look at the distribution of parameters
 plot(density(samples_df$a_rew))
 plot(density(samples_df$a_pun))
@@ -125,7 +91,7 @@ plot(density(samples_df$omega_f))
 plot(density(samples_df$omega_p))
 
 # trace plot
-traceplot(samples, ask=FALSE, mfrow = c(3, 2), varname=params)
+traceplot(samples_list, ask=FALSE, mfrow = c(3, 2), varname=params)
 
 # Gelman-Rubin diagnostic
 gelman_results <- gelman.diag(samples_list[, c("a_rew", "a_pun", "K", "omega_f", "omega_p")], multivariate = FALSE)
