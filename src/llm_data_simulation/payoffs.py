@@ -107,8 +107,6 @@ def payoff_ahn(ntrials):
     """
     if ntrials % 10 != 0:
         raise ValueError("ntrials must be divisible by 10.")
-    
-    np.random.seed(2000)
 
     nstruct = 10  # Size of subdivisions for pseudorandomization
     freq = 0.5  # Probability of frequent losses

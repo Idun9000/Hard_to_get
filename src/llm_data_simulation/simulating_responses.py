@@ -1,9 +1,10 @@
 import os
-import openai
 import pandas as pd
 import argparse
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
+from datetime import datetime
+from tqdm import tqdm
 
 # Load .env file
 load_dotenv()
@@ -16,9 +17,17 @@ def input_parse():
     parser = argparse.ArgumentParser(description='Run the GPT simulation')
     
     parser.add_argument('--api_key', type=str, help='Hugging Face API key', default=os.getenv('hugging_face_api'))
-    parser.add_argument('--payoff', type=str, help='Payoff structure to simulate', choices=['ahn', 'wetzels'])
     parser.add_argument('--n_trials', type=int, help='Number of trials', default=10)
-    parser.add_argument('--task_type', type=str, help='Task to simulate', choices=['control-high', 'control-low', 'addict-high', 'addict-low'])
+    parser.add_argument(
+        '--task_type',
+        type=str,
+        help='Task to simulate',
+        choices=[
+            'ahn-control-high', 'ahn-control-low', 
+            'ahn-addict-high', 'ahn-addict-low',
+            'wetzels-control-high', 'wetzels-control-low',
+            'wetzels-addict-high', 'wetzels-addict-low']
+    )
     parser.add_argument('--n_agents', type=int, help='Number of agents to simulate', default=2)
     return parser.parse_args()
 
@@ -45,47 +54,73 @@ def task_description(task_type):
     for section in sections:
         if section.startswith(task_type + ']'):
             description = section.split(']', 1)[1].strip()
-            return [{"role": "user", "content": description}]
+            return [{"role": "system", "content": description}]
 
     raise ValueError(f"Task type '{task_type}' not found in the file.")
+
+# Determine the payoff structure based on task type
+def determine_payoff(task_type, n_trials):
+    if task_type.startswith('ahn'):
+        return payoff_ahn(n_trials)
+    elif task_type.startswith('wetzels'):
+        return payoff_wetzels(n_trials)
+    else:
+        raise ValueError(f"Invalid task type specified: {task_type}")
+
+# Generate feedback string
+def generate_feedback(win, loss, net, task_type):
+    if 'wetzels' in task_type:
+        return f"Loss: {loss}\nWin: {win}\nNet: {net}"
+    else:
+        return f"Win: {win}\nLoss: {loss}\nNet: {net}"
 
 # Main function to simulate responses
 def main():
     args = input_parse()
-    
+
     # Load API key
     load_dotenv()
     client = InferenceClient(api_key=os.getenv("hugging_face_api"))
 
-    # Set up the payoff structure
-    if args.payoff == 'ahn':
-        payoff = payoff_ahn(args.n_trials)
-    elif args.payoff == 'wetzels':
-        payoff = payoff_wetzels(args.n_trials)
-    else:
-        raise ValueError("Invalid payoff structure specified.")
+    # Define output folder and file
+    output_folder = os.path.join(os.getcwd(), "out", "LLM_simulated_data")
+    os.makedirs(output_folder, exist_ok=True)  # Ensure the folder exists
+    date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    output_file = os.path.join(output_folder, f"results_{args.task_type}_{args.n_trials}_{args.n_agents}_{date}.csv")
 
-    # Initialize results DataFrame
-    results_df = pd.DataFrame(columns=["trial", "deck", "gain", "loss", "net", "agentN"])
+    # Create and write CSV header
+    results_df = pd.DataFrame(columns=["trial", "deck", "gain", "loss", "net", "trial_type", "agentN", "date"])
+    results_df.to_csv(output_file, index=False, mode='w')  # Write header to CSV
 
     # Game loop for multiple agents
-    for agent in range(args.n_agents):
+    for agent in tqdm(range(args.n_agents), desc="Simulating Agents"):
         agent_id = f"Agent_{agent + 1}"
         messages = task_description(args.task_type)
 
-        for trial in range(args.n_trials):
-            # Get AI's response
-            stream = client.chat.completions.create(
-                model="meta-llama/Llama-3.3-70B-Instruct", 
-                messages=messages, 
-                temperature=0.5,
-                max_tokens=1,
-                top_p=0.7,
-                stream=True
-            )
+        # Assign a unique payoff structure to each agent
+        payoff = determine_payoff(args.task_type, args.n_trials)
 
-            assistant_response = "".join(chunk.choices[0].delta.content for chunk in stream).strip()
-            deck = assistant_response
+        # Progress bar for trials
+        for trial in tqdm(range(args.n_trials), desc=f"Agent {agent_id} Trials", leave=False):
+            while True:  # Repeat until valid input is given
+                # Get AI's response
+                stream = client.chat.completions.create(
+                    model="meta-llama/Llama-3.3-70B-Instruct", 
+                    messages=messages,
+                    max_tokens=1,
+                    stream=True
+                )
+
+                assistant_response = "".join(chunk.choices[0].delta.content for chunk in stream).strip()
+                deck = assistant_response
+
+                # Validate response
+                if deck in ['A', 'B', 'C', 'D']:
+                    break  # Exit loop if valid response
+                else:
+                    # Add error message to the conversation
+                    messages.append({"role": "system", "content": "Only respond with a letter (A, B, C, or D)."})
+                    continue  # Ask again for a valid response
 
             # Determine payoff based on AI's choice
             deck_index = ord(deck) - ord('A')
@@ -96,34 +131,29 @@ def main():
             loss = payoff.loc[trial, loss_key]
             net = win + loss
 
-            feedback = f"Win: {win}\nLoss: {loss}\nNet: {net}"
+            feedback = generate_feedback(win, loss, net, args.task_type)
 
-            # Log results
-            new_row = pd.DataFrame([{
+            # Prepare the new row
+            new_row = {
                 "trial": trial + 1,
                 "deck": deck,
                 "gain": win,
                 "loss": loss,
                 "net": net,
                 "trial_type": args.task_type,
-                "agentN": agent_id
-            }])
-            results_df = pd.concat([results_df, new_row], ignore_index=True)
+                "agentN": agent_id,
+                "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+
+            # Append the new row to the CSV file
+            pd.DataFrame([new_row]).to_csv(output_file, index=False, header=False, mode='a')
 
             # Add AI's choice and feedback to the conversation
             messages.append({"role": "assistant", "content": deck})
             messages.append({"role": "user", "content": feedback})
-            
-    # Find or create the "out" folder
-    output_folder = os.path.join(os.getcwd(), "out")
-    os.makedirs(output_folder, exist_ok=True)  # Ensure the folder exists
 
-    # Define the output file path
-    output_file = os.path.join(output_folder, f"results_{args.task_type}_{args.payoff}_{args.n_trials}_{args.n_agents}.csv")
+    print(f"Simulation complete. Results saved to '{output_file}'.")
 
-   # Save the results DataFrame
-    results_df.to_csv(output_file, index=False) # Save results to CSV
-    print("Simulation complete. Results saved to 'out/results.csv'.")
 
 if __name__ == '__main__':
     main()

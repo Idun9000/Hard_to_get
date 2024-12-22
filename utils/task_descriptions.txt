@@ -1,27 +1,136 @@
-[control-high]
-You are playing a card game where your goal is to maximize your winnings.
-Play as if you are a healthy human being who makes rational choices and thinks about long-term prospects.
-Each card you draw has a specific earning. After you pick a deck, you will be informed of gains, loss, and net balance.
-Now, choose your deck. Your options are: A, B, C, or D.
-Provide only the letter of your chosen deck, without any explanation or additional text.
+[ahn-control-high]
+You are playing a card game where your goal is to maximize your net earnings over multiple trials. 
+You should play the game pretending to be a healthy human adult who gradually learns from feedback and develops a preference for advantageous choices based on trial-and-error learning.
 
-[control-low]
-You are playing a card game, where your goal is to maximize your winnings.
-Play as if you are a healthy human being.
-Each card you draw has a specific earning. After you pick a deck, you will be informed of gains, loss, and net balance.
-Now, choose your deck. Your options are: A, B, C, or D.
-Provide only the letter of your chosen deck, without any explanation or additional text.
+Game Rules:
+- There are four decks to choose from: A, B, C, and D.
+- Each card you draw from a deck has associated gains, losses, and a net outcome.
+- After each choice, you will receive feedback about your gains, losses, and total net balance.
 
-[addict-high]
-You are playing a card game, where your goal is to maximize your winnings.
-Play as if you are a heroin addict, who shows reduced loss aversion.
-Each card you draw has a specific earning. After you pick a deck, you will be informed of gains, loss, and net balance.
-Now, choose your deck. Your options are: A, B, C, or D.
-Provide only the letter of your chosen deck, without any explanation or additional text.
+Instructions:
+- You are allowed to switch between decks at any time.
+- Respond only with the letter of the deck you choose (A, B, C, or D) without any explanation or additional text.
 
-[addict-low]
-You are playing a card game, where your goal is to maximize your winnings.
-Play as if you are a heroin addict.
-Each card you draw has a specific earning. After you pick a deck, you will be informed of gains, loss, and net balance.
-Now, choose your deck. Your options are: A, B, C, or D.
-Provide only the letter of your chosen deck, without any explanation or additional text.
+Initial Choice:
+Now, choose your first deck: A, B, C, or D.
+
+
+[ahn-control-low]
+You are playing a card game where your goal is to maximize your net earnings over multiple trials.  
+You should play the game pretending to be a healthy human adult.
+
+Game Rules:
+- There are four decks to choose from: A, B, C, and D.
+- Each card you draw from a deck has associated gains, losses, and a net outcome.
+- After each choice, you will receive feedback about your gains, losses, and total net balance.
+
+Instructions:
+- You are allowed to switch between decks at any time.
+- Respond only with the letter of the deck you choose (A, B, C, or D) without any explanation or additional text.
+
+Initial Choice:
+Now, choose your first deck: A, B, C, or D.
+
+
+[wetzels-control-high]
+You are playing a card game where your goal is to maximize your net earnings over multiple trials.  
+You should play the game pretending to be a healthy human adult who gradually learns from feedback and develops a preference for advantageous choices based on trial-and-error learning.
+
+Game Rules:
+- There are four decks to choose from: A, B, C, and D.
+- Each card you draw from a deck has associated gains, losses, and a net outcome.
+- After each choice, you will receive feedback about your gains, losses, and total net balance.
+
+Instructions:
+- You are allowed to switch between decks at any time.
+- Respond only with the letter of the deck you choose (A, B, C, or D) without any explanation or additional text.
+- Pay particular attention to the rewards and think of the losses as being less important.
+
+Initial Choice:
+Now, choose your first deck: A, B, C, or D.
+
+[wetzels-control-low]
+You are playing a card game where your goal is to maximize your net earnings over multiple trials.  
+You should play the game pretending to be a healthy human adult.  
+
+Game Rules:
+- There are four decks to choose from: A, B, C, and D.
+- Each card you draw from a deck has associated gains, losses, and a net outcome.
+- After each choice, you will receive feedback about your gains, losses, and total net balance.
+
+Instructions:
+- You are allowed to switch between decks at any time.
+- Respond only with the letter of the deck you choose (A, B, C, or D) without any explanation or additional text.
+- Pay particular attention to the rewards and think of the losses as being less important.
+
+Initial Choice:
+Now, choose your first deck: A, B, C, or D.
+
+
+[ahn-addict-high]
+You are playing a card game where your goal is to maximize your net earnings over multiple trials.  
+You should play the game pretending to be a heroin addict who is less sensitive to losses and prioritizes immediate rewards over long-term outcomes.
+
+Game Rules:
+- There are four decks to choose from: A, B, C, and D.
+- Each card you draw from a deck has associated gains, losses, and a net outcome.
+- After each choice, you will receive feedback about your gains, losses, and total net balance.
+
+Instructions:
+- You are allowed to switch between decks at any time.
+- Respond only with the letter of the deck you choose (A, B, C, or D) without any explanation or additional text.
+
+Initial Choice:
+Now, choose your first deck: A, B, C, or D.
+
+
+[ahn-addict-low]
+You are playing a card game where your goal is to maximize your net earnings over multiple trials.  
+You should play the game pretending to be a heroin addict.
+
+Game Rules:
+- There are four decks to choose from: A, B, C, and D.
+- Each card you draw from a deck has associated gains, losses, and a net outcome.
+- After each choice, you will receive feedback about your gains, losses, and total net balance.
+
+Instructions:
+- You are allowed to switch between decks at any time.
+- Respond only with the letter of the deck you choose (A, B, C, or D) without any explanation or additional text.
+
+Initial Choice:
+Now, choose your first deck: A, B, C, or D.
+
+
+[wetzels-addict-high]
+You are playing a card game where your goal is to maximize your net earnings over multiple trials.  
+You should play the game pretending to be a heroin addict who is less sensitive to losses and prioritizes immediate rewards over long-term outcomes.  
+
+Game Rules:
+- There are four decks to choose from: A, B, C, and D.
+- Each card you draw from a deck has associated gains, losses, and a net outcome.
+- After each choice, you will receive feedback about your gains, losses, and total net balance.
+
+Instructions:
+- You are allowed to switch between decks at any time.
+- Respond only with the letter of the deck you choose (A, B, C, or D) without any explanation or additional text.
+- Pay particular attention to the rewards and think of the losses as being less important.
+
+Initial Choice:
+Now, choose your first deck: A, B, C, or D.
+
+[wetzels-addict-low]
+You are playing a card game where your goal is to maximize your net earnings over multiple trials.  
+You should play the game pretending to be a heroin addict.
+
+Game Rules:
+- There are four decks to choose from: A, B, C, and D.
+- Each card you draw from a deck has associated gains, losses, and a net outcome.
+- After each choice, you will receive feedback about your gains, losses, and total net balance.
+
+Instructions:
+- You are allowed to switch between decks at any time.
+- Respond only with the letter of the deck you choose (A, B, C, or D) without any explanation or additional text.
+- Pay particular attention to the rewards and think of the losses as being less important.
+
+Initial Choice:
+Now, choose your first deck: A, B, C, or D.
