@@ -90,8 +90,33 @@ plot(density(samples_df$K))
 plot(density(samples_df$omega_f))
 plot(density(samples_df$omega_p))
 
-# trace plot
-traceplot(samples_list, ask=FALSE, mfrow = c(3, 2), varname=params)
+# Get the parameter names from the first chain
+param_names <- colnames(samples_list[[1]])
+print(param_names)
+
+# Subset the mcmc.list for the parameters of interest
+selected_params <- c("a_rew", "a_pun", "K", "omega_f", "omega_p") # Update with your parameters
+filtered_samples <- samples_list[, selected_params, drop = FALSE]
+
+#Open a graphics device to save the combined plot
+png("traceplot_Wetzel_healthy.png", width = 1200, height = 800)
+
+# Set up a grid layout for 3 rows and 2 columns (adjust as needed)
+par(mfrow = c(3, 2))
+
+# Loop through each parameter and plot its trace
+selected_params <- c("a_rew", "a_pun", "K", "omega_f", "omega_p") # Update as needed
+
+for (param in selected_params) {
+  # Extract traces for the parameter across chains
+  traces <- samples_list[, param, drop = FALSE]
+  
+  # Plot the traceplot for the parameter
+  traceplot(traces, main = paste("Traceplot for", param), ask = FALSE)
+}
+
+# Close the graphics device to save the plot
+dev.off()
 
 # Gelman-Rubin diagnostic
 gelman_results <- gelman.diag(samples_list[, c("a_rew", "a_pun", "K", "omega_f", "omega_p")], multivariate = FALSE)
