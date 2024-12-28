@@ -3,6 +3,8 @@ pacman::p_load(hesim, extraDistr, R2jags, parallel, ggpubr)
 
 set.seed(2000)
 
+setwd("/work/DC_exam/Hard_to_get/src/modeling/Recovery")
+
 # defining a function for calculating the maximum of the posterior density (not exactly the same as the mode)
 MPD <- function(x) {
   density(x)$x[which(density(x)$y==max(density(x)$y))]
@@ -86,8 +88,8 @@ for (i in 1:niterations) {
   theta <- 1 #runif(1,.2,3) # could also just be a set value (e.g. 1) to simplify the model a bit
   #omega_f <- runif(1,-2,2)
   #omega_p <- runif(1,-2,2)
-  omega_f <- runif(1,-20,20)
-  omega_p <- runif(1,-20,20)
+  omega_f <- runif(1,-10,10)
+  omega_p <- runif(1,-10,10)
   
   ORL_sims <- ORL(payoff,ntrials,a_rew,a_pun,K,theta,omega_f,omega_p)
   
@@ -133,10 +135,10 @@ plot(true_omega_f,infer_omega_f)
 plot(true_omega_p,infer_omega_p)
 
 # Define the folder where you want to save the plot
-output_folder <- "/work/TildeIdunSloth#2173/DC_exam/Hard_to_get/Plots"
+output_folder <- "/work/DC_exam/Hard_to_get/out/plots"
 
 # Set the file path and name
-output_file <- file.path(output_folder, "parameter_recovery_plots_Wetzel_structure.png")
+output_file <- file.path(output_folder, "parameter_recovery_plots_Wetzel_structure_lower_range.png")
 
 # Open the graphics device
 png(filename = output_file, width = 800, height = 1000)  # Adjust width and height as needed
@@ -176,7 +178,6 @@ dev.off()
 # Output confirmation message
 cat("Plot saved to:", output_file, "\n")
 
-save.image(file = "my_workspace.RData")
 
 # for investigating multi-colinearity
 # par(mfrow=c(2,2))

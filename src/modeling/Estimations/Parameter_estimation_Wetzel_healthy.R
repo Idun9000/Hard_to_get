@@ -40,7 +40,7 @@ for (s in 1:nsubs) {
 }
 
 # Scaling payoffs
-X_all <- X_all / 150
+X_all <- X_all / 100
 
 #---------- Run JAGS for all subjects
 params <- c("a_rew", "a_pun", "K", "theta", "omega_f", "omega_p")
@@ -81,7 +81,7 @@ samples_matrix <- as.matrix(samples_list)
 # Convert the matrix to a data frame
 samples_df <- as.data.frame(samples_matrix)
 
-write.csv(samples_df, "posterior_samples_healthy_Wetzel_correct_scaling.csv", row.names = FALSE)
+write.csv(samples_df, "posterior_samples_healthy_Wetzel.csv", row.names = FALSE)
 
 # Look at the distribution of parameters
 plot(density(samples_df$a_rew))
@@ -123,4 +123,4 @@ gelman_results <- gelman.diag(samples_list[, c("a_rew", "a_pun", "K", "omega_f",
 print(gelman_results)
 
 # Save the workspace 
-save.image(file = "estimation_Wetzel_healthy_correct_scaling.RData")
+save.image(file = "estimation_Wetzel_healthy.RData")
