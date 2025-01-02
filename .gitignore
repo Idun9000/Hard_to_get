@@ -6,3 +6,4 @@ src/llm_data_simulation/sim.ipynb
 src/llm_data_simulation/__pycache__
 in/Ahn_data
 in/Wetzels_data
+in/preprocessed_data
