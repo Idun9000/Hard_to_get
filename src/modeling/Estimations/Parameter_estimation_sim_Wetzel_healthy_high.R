@@ -75,20 +75,6 @@ pacman::p_load(coda)
 samples_list <- mcmc.list(lapply(1:ncol(samples$BUGSoutput$sims.array), 
                                  function(chain) as.mcmc(samples$BUGSoutput$sims.array[, chain, ])))
 
-# Convert samples_list to a matrix
-samples_matrix <- as.matrix(samples_list)
-
-# Convert the matrix to a data frame
-samples_df <- as.data.frame(samples_matrix)
-
-write.csv(samples_df, "posterior_samples_sim_Wetzel_healthy_high.csv", row.names = FALSE)
-
-# Look at the distribution of parameters
-plot(density(samples_df$a_rew))
-plot(density(samples_df$a_pun))
-plot(density(samples_df$K))
-plot(density(samples_df$omega_f))
-plot(density(samples_df$omega_p))
 
 # Get the parameter names from the first chain
 param_names <- colnames(samples_list[[1]])
