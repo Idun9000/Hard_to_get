@@ -71,6 +71,7 @@ for (s in 1:nsubs) {
 
 
 # Investigate convergence
+
 pacman::p_load(coda)
 samples_list <- mcmc.list(lapply(1:ncol(samples$BUGSoutput$sims.array), 
                                  function(chain) as.mcmc(samples$BUGSoutput$sims.array[, chain, ])))
